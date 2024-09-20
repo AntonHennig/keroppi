@@ -35,7 +35,7 @@ def load_cogs_from_config():
             return json.load(f)
     except FileNotFoundError:
         # If the file doesn't exist, create it with default cogs
-        default_cogs = ["cogs.core"]
+        default_cogs = ["cogs.core", "cogs.autodelete", "cogs.docker", "cogs.help", "cogs.ip", "cogs.purge"]
         with open("cogs_config.json", "w") as f:
             json.dump(default_cogs, f)
         return default_cogs
