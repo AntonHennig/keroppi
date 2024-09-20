@@ -3,9 +3,9 @@ import json
 import discord
 import asyncio
 from discord.ext import commands
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
-# Load environment variables
+
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
@@ -18,10 +18,9 @@ command_prefix = "!"
 # Create bot instance
 bot = commands.Bot(command_prefix, intents=intents)
 
-
 @bot.event
 async def on_ready():
-    print(f"{bot.user} has connected to Discord!")
+    print(f"{bot.user} is Online!")
 
 
 # Function to load cogs from the configuration file
