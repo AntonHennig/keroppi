@@ -30,15 +30,17 @@ async def on_ready():
 
 # Function to load cogs from the configuration file
 def load_cogs_from_config():
-    try:
-        with open("cogs_config.json", "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        # If the file doesn't exist, create it with default cogs
-        default_cogs = ["cogs.core", "cogs.autodelete", "cogs.docker", "cogs.help", "cogs.ip", "cogs.purge"]
-        with open("cogs_config.json", "w") as f:
-            json.dump(default_cogs, f)
-        return default_cogs
+    # try:
+    #     with open("cogs_config.json", "r") as f:
+    #         return json.load(f)
+    # except FileNotFoundError:
+    
+    # temporarily this loads all cogs
+    # If the file doesn't exist, create it with default cogs
+    default_cogs = ["cogs.core", "cogs.autodelete", "cogs.docker", "cogs.help", "cogs.ip", "cogs.purge"]
+    with open("cogs_config.json", "w") as f:
+        json.dump(default_cogs, f)
+    return default_cogs
 
 
 async def main():
