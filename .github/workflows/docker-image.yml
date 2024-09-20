@@ -13,4 +13,5 @@ jobs:
         run: docker build . --file Dockerfile --tag keroppi:latest
       - name: push image to docker hub
         run: 
+          docker login -u slxyyz -p ${{secrets.DOCKER_HUB_TOKEN}}
           docker push slxyyz/keroppi:latest
