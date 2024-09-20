@@ -57,9 +57,9 @@ class Purge(commands.Cog):
         deleted_count = 0
         try:
             while True:
-                deleted = await target_channel.purge(limit=100)
+                deleted = await target_channel.purge(limit=1000)
                 deleted_count += len(deleted)
-                if len(deleted) < 100:
+                if len(deleted) < 1000:
                     break
 
             await status_message.delete()

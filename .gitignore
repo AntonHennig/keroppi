@@ -1,4 +1,4 @@
 .env
-.venv
+.venv/
 cogs_config.json
 *.pyc

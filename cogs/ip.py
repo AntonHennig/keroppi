@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import requests
-import os
 import asyncio
 
 
@@ -25,21 +24,10 @@ class Ip(commands.Cog):
         """returns public IP"""
         public_ip = self.get_public_ip()
 
-        content = f"**Public IP:**\n**`{public_ip}`**"
+        content = f"**Public IP:**\n`{public_ip}`"
 
-        # Send the message (not ephemeral)
-        bot_message = await ctx.send(content)
-
-        # Wait for 30 seconds
-        await asyncio.sleep(30)
-
-        # Delete the user's command and the bot's response
-        try:
-            await ctx.message.delete()
-            await bot_message.delete()
-        except discord.errors.NotFound:
-            # Message might have been deleted already, ignore this error
-            pass
+        # Send the message
+        bot_message = await ctx.send(content, ephemeral=True)
 
 
 async def setup(bot) -> None:
