@@ -4,6 +4,11 @@ import discord
 import asyncio
 from discord.ext import commands
 from dotenv import load_dotenv
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 load_dotenv()
@@ -20,7 +25,7 @@ bot = commands.Bot(command_prefix, intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user} is Online!")
+    logging.info(f"{bot.user} is Online")
 
 
 # Function to load cogs from the configuration file
