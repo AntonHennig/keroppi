@@ -32,3 +32,7 @@ jobs:
 
     - name: Logout from Docker Hub
       run: docker logout
+
+    - name: Notify Webhook
+      run: |
+        curl -X POST -H "Content-Type: application/json" -d '{"text": "Keroppis Docker image updated successfully!"}' ${{ WEBHOOK_URL }}
