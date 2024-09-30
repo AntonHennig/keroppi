@@ -1,61 +1,39 @@
 import os
 import json
-import discord
 from discord.ext import commands
+
+CONFIG_DIR = "/app/config"  # Same as in bot.py
+CONFIG_FILE = os.path.join(
+    CONFIG_DIR, "cogs_config.json"
+)  # Full path to the config file
 
 
 class Core(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Ensure the config directory exists
+        os.makedirs(CONFIG_DIR, exist_ok=True)
+
+        # Load cogs from config on initialization
+        self.loaded_cogs = self.load_cogs_from_config()
 
     def update_cog_config(self):
-        """writes changes to JSON File"""
+        """Writes the currently loaded cogs to the JSON file."""
         loaded_cogs = [
-        
             f"cogs.{cog.__class__.__name__.lower()}" for cog in self.bot.cogs.values()
         ]
-        with open("cogs_config.json", "w") as f:
-            json.dump(loaded_cogs, f)
-
-    @commands.command()
-    @commands.is_owner()
-    async def load(self, ctx, extension):
-        """^^"""
-        try:
-            await self.bot.load_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"Loaded {extension}")
-        except Exception as e:
-            await ctx.send(f"Error loading {extension}: {e}")
-
-    @commands.command()
-    @commands.is_owner()
-    async def unload(self, ctx, extension):
-        """^^"""
-        try:
-            await self.bot.unload_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"Unloaded {extension}")
-        except Exception as e:
-            await ctx.send(f"Error unloading {extension}: {e}")
-
-    @commands.command()
-    @commands.is_owner()
-    async def reload(self, ctx, extension):
-        """Reload"""
-        try:
-            await self.bot.reload_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"Reloaded {extension}")
-        except Exception as e:
-            await ctx.send(f"Error reloading {extension}: {e}")
+        with open(CONFIG_FILE, "w") as f:
+            json.dump({"loaded_cogs": loaded_cogs}, f, indent=4)
 
     def load_cogs_from_config(self):
-        """Loads the cogs from the JSON file."""
+        """Loads the cogs from the JSON configuration file."""
         try:
-            with open("cogs_config.json", "r") as f:
-                return json.load(f)
+            with open(CONFIG_FILE, "r") as f:
+                return json.load(f).get("loaded_cogs", [])
         except FileNotFoundError:
+            # Create the config file if it doesn't exist and return an empty list
+            with open(CONFIG_FILE, "w") as f:
+                json.dump({"loaded_cogs": []}, f, indent=4)
             return []
 
     def get_all_cogs(self):
@@ -66,6 +44,39 @@ class Core(commands.Cog):
             if filename.endswith(".py"):  # Only include Python files
                 cogs.append(f"cogs.{filename[:-3]}")  # Remove the ".py"
         return cogs
+
+    @commands.command()
+    @commands.is_owner()
+    async def load(self, ctx, extension):
+        """Load a cog."""
+        try:
+            await self.bot.load_extension(f"cogs.{extension}")
+            self.update_cog_config()
+            await ctx.send(f"Loaded {extension}")
+        except Exception as e:
+            await ctx.send(f"Error loading {extension}: {e}")
+
+    @commands.command()
+    @commands.is_owner()
+    async def unload(self, ctx, extension):
+        """Unload a cog."""
+        try:
+            await self.bot.unload_extension(f"cogs.{extension}")
+            self.update_cog_config()
+            await ctx.send(f"Unloaded {extension}")
+        except Exception as e:
+            await ctx.send(f"Error unloading {extension}: {e}")
+
+    @commands.command()
+    @commands.is_owner()
+    async def reload(self, ctx, extension):
+        """Reload a cog."""
+        try:
+            await self.bot.reload_extension(f"cogs.{extension}")
+            self.update_cog_config()
+            await ctx.send(f"Reloaded {extension}")
+        except Exception as e:
+            await ctx.send(f"Error reloading {extension}: {e}")
 
     @commands.command()
     async def list_cogs(self, ctx):
