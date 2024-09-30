@@ -10,6 +10,7 @@ Just create a .env in the bot folder and run it with
   - ```docker compose up -d```
 
 Example run command
+  - 
     ```
         docker run -d --name discord_bot \
         -e DISCORD_TOKEN=your-bot-token \
