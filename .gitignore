@@ -2,3 +2,4 @@
 .venv/
 cogs_config.json
 *.pyc
+ideas.txt
