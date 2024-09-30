@@ -1,0 +1,10 @@
+services:
+  discord_bot:
+    image: slxyyz/keroppi:latest
+    container_name: Your desired Bot name
+    volumes:
+      - /mnt/user/appdata/keroppi/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+    restart: unless-stopped

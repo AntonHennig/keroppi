@@ -1,10 +1,11 @@
 .env
 .venv/
 *.pyc
-cogs_config.json
 
 .git
 .gitignore
 
 Dockerfile
 README.md
+
+compose.yml

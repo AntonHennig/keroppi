@@ -3,9 +3,7 @@ import json
 from discord.ext import commands
 
 CONFIG_DIR = "/app/config"  # Same as in bot.py
-CONFIG_FILE = os.path.join(
-    CONFIG_DIR, "cogs_config.json"
-)  # Full path to the config file
+CONFIG_FILE = os.path.join(CONFIG_DIR, "cogs_config.json")  # Full path to the config file
 
 
 class Core(commands.Cog):
@@ -100,4 +98,6 @@ class Core(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Core(bot))
+    core_cog = Core(bot)
+    await bot.add_cog(core_cog)
+    core_cog.update_cog_config()
