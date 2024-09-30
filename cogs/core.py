@@ -58,44 +58,47 @@ class Core(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx, extension: str):
-        """Load a cog by name."""
-        try:
-            await self.bot.load_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"✅ Loaded cog: {extension}")
-        except commands.ExtensionAlreadyLoaded:
-            await ctx.send(f"⚠️ The cog `{extension}` is already loaded.")
-        except Exception as e:
-            await ctx.send(f"❌ Error loading cog `{extension}`: {e}")
+    async def load(self, ctx, *extension: str):
+        """Load cogs by name."""
+        for cog in extension:
+            try:
+                await self.bot.load_extension(f"cogs.{cog}")
+                self.update_cog_config()
+                await ctx.send(f"✅ Loaded cog: {cog}")
+            except commands.ExtensionAlreadyLoaded:
+                await ctx.send(f"⚠️ The cog `{cog}` is already loaded.")
+            except Exception as e:
+                await ctx.send(f"❌ Error loading cog `{cog}`: {e}")
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx, extension: str):
-        """Unload a cog by name."""
-        try:
-            await self.bot.unload_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"✅ Unloaded cog: {extension}")
-        except commands.ExtensionNotLoaded:
-            await ctx.send(f"⚠️ The cog `{extension}` is not loaded.")
-        except Exception as e:
-            await ctx.send(f"❌ Error unloading cog `{extension}`: {e}")
+    async def unload(self, ctx, *extension: str):
+        """Unload cogs by name."""
+        for cog in extension:
+            try:
+                await self.bot.unload_extension(f"cogs.{cog}")
+                self.update_cog_config()
+                await ctx.send(f"✅ Unloaded cog: {cog}")
+            except commands.ExtensionNotLoaded:
+                await ctx.send(f"⚠️ The cog `{cog}` is not loaded.")
+            except Exception as e:
+                await ctx.send(f"❌ Error unloading cog `{cog}`: {e}")
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx, extension: str):
+    async def reload(self, ctx, *extension: str):
         """Reload a cog by name."""
-        try:
-            await self.bot.reload_extension(f"cogs.{extension}")
-            self.update_cog_config()
-            await ctx.send(f"🔄 Reloaded cog: {extension}")
-        except commands.ExtensionNotLoaded:
-            await ctx.send(
-                f"⚠️ The cog `{extension}` is not loaded, so cannot be reloaded."
-            )
-        except Exception as e:
-            await ctx.send(f"❌ Error reloading cog `{extension}`: {e}")
+        for cog in extension:
+            try:
+                await self.bot.reload_extension(f"cogs.{cog}")
+                self.update_cog_config()
+                await ctx.send(f"🔄 Reloaded cog: {cog}")
+            except commands.ExtensionNotLoaded:
+                await ctx.send(
+                    f"⚠️ The cog `{cog}` is not loaded, so cannot be reloaded."
+                )
+            except Exception as e:
+                await ctx.send(f"❌ Error reloading cog `{cog}`: {e}")
 
     @commands.command()
     async def list_cogs(self, ctx):
