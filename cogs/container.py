@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import docker
+import io
 
 # Attempt to connect to Docker socket
 try:
@@ -21,7 +22,6 @@ class Container(commands.Cog):
         if client is None:
             await ctx.send("❌ Error: Docker client is not available. Please check Docker connection.")
             return
-
         try:
             # List running containers
             containers = client.containers.list()
@@ -38,7 +38,24 @@ class Container(commands.Cog):
         except Exception as e:
             await ctx.send(f"⚠️ An unexpected error occurred: {e}")
 
-    # (You can add more Docker-related commands here, e.g., starting/stopping containers)
+    @commands.command(aliases=["log"])
+    async def docker_log(self, ctx,container_name: str):
+        """Fetch Docker logs and send them as a file."""
+        try:
+            client = docker.from_env()
+            container = client.containers.get(container_name)
+            logs = container.logs(timestamps=True, tail=100).decode('utf-8')
+            
+            with io.StringIO() as file:
+                file.write(logs)
+                file.seek(0)
+                
+                await ctx.send(file=discord.File(file, f"{container_name}_logs.txt"))
+            
+        except docker.errors.NotFound as e:
+            await ctx.send(f"❌ {container_name} not found")
+        except Exception as e:
+            await ctx.send(f"⚠️ An unexpected error occurred: {e}")
 
 async def setup(bot):
     await bot.add_cog(Container(bot))
