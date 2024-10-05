@@ -84,8 +84,8 @@ class Container(commands.Cog):
 
         info = (
             f"**📦 Name:** `{name}`\n"
-            f"**🖼️ Image:** `{image}`\n"
-            f"**📅 Created:** `{created.strftime('%Y-%m-%d %H:%M:%S %Z')}`\n"
+            #f"**🖼️ Image:** `{image}`\n"
+            #f"**📅 Created:** `{created.strftime('%Y-%m-%d %H:%M:%S %Z')}`\n"
             f"**🕒 Uptime:** `{uptime}`"
             "\n`----------------------------------`\n"
         )
