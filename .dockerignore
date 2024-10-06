@@ -4,8 +4,10 @@
 
 .git
 .gitignore
+.github
 
 Dockerfile
 README.md
 
 compose.yml
+env.sample
