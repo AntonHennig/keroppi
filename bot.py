@@ -24,13 +24,11 @@ intents = discord.Intents.default()
 intents.message_content = True  # Enable access to message content
 
 # Define the command prefix for the bot
-COMMAND_PREFIX = "."
+COMMAND_PREFIX = "!"
 
 # Create bot instance
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 
-
-# Bot ready event handler
 @bot.event
 async def on_ready():
     logging.info(f"{bot.user} is now online and ready.")

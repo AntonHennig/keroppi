@@ -3,6 +3,7 @@ import json
 import discord
 from discord.ext import commands
 import asyncio
+from decorators import delete_command_message, delete_bot_response
 
 # Directory and file for storing cog configurations
 CONFIG_DIR = "./config"
@@ -14,7 +15,9 @@ CONFIG_FILE = os.path.join(
 PROTECTED_COGS = ["cogs.core", "cogs.help"]
 
 
-class Core(commands.Cog):
+class Core(
+    commands.Cog, description="Commands for managing the bot's cogs (extensions)."
+):
     """Core cog for managing the loading, unloading, and listing of other cogs."""
 
     def __init__(self, bot):
@@ -76,20 +79,34 @@ class Core(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
+    @delete_command_message(delay=0)
+    @delete_bot_response(delay=10)
     async def load(self, ctx):
-        """Load cogs interactively."""
+        """Load cogs interactively.
+
+        **Usage:**
+        `!load
+        """
         await self.manage_cogs(ctx, action="load")
 
     @commands.command()
     @commands.is_owner()
+    @delete_command_message(delay=0)
+    @delete_bot_response(delay=10)
     async def unload(self, ctx):
         """Unload cogs interactively."""
         await self.manage_cogs(ctx, action="unload")
 
     @commands.command()
     @commands.is_owner()
+    @delete_command_message(delay=0)
+    @delete_bot_response(delay=5)
     async def reload(self, ctx):
-        """Reload cogs interactively."""
+        """Reload cogs interactively.
+
+        **Usage:**
+        `!reload
+        """
         await self.manage_cogs(ctx, action="reload")
 
     async def manage_cogs(self, ctx, action):
@@ -198,7 +215,9 @@ class Core(commands.Cog):
                     f"❌ Error {action}ing cog `{cog[5:]}`: {e}", delete_after=5
                 )
 
-    @commands.command()
+    @commands.command(aliases=["cogs"])
+    @delete_command_message(delay=0)
+    @delete_bot_response(delay=30)
     async def list_cogs(self, ctx):
         """List all loaded and unloaded cogs."""
         loaded_cogs = [
