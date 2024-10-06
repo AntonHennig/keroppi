@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import docker
-import asyncio
 from datetime import datetime, timezone
 from bot import COMMAND_PREFIX
 from decorators import delete_command_message, delete_bot_response
@@ -163,6 +162,7 @@ class Container(commands.Cog):
                 "❌ Docker client is not available. Please check Docker connection."
             )
             return
+
         # Determine the status filter based on action
         if action == "start":
             containers = self.client.containers.list(
@@ -170,11 +170,14 @@ class Container(commands.Cog):
             )
         else:
             containers = self.client.containers.list()
+
         if not containers:
             await ctx.send(f"🛑 No containers available to {action}.")
             return
+
         # Sort containers by name
         containers.sort(key=lambda x: x.name)
+
         # Create select options
         options = [
             discord.SelectOption(
@@ -182,81 +185,85 @@ class Container(commands.Cog):
             )
             for container in containers
         ]
-        # Handle options exceeding 25 limit
-        option_chunks = [options[i : i + 25] for i in range(0, len(options), 25)]
-        for chunk_index, option_chunk in enumerate(option_chunks):
-            embed = discord.Embed(
-                title=f"Select a container to {action.capitalize()}",
-                description=f"Page {chunk_index + 1} of {len(option_chunks)}",
-                color=discord.Color.blue(),
-            )
-            view = discord.ui.View()
-            select = discord.ui.Select(
-                placeholder=f"Select a container to {action.capitalize()}",
-                options=option_chunk,
-                min_values=1,
-                max_values=1,
-            )
-            view.add_item(select)
-            message = await ctx.send(embed=embed, view=view)
 
-            async def select_callback(interaction):
-                if interaction.user != ctx.author:
+        # Limit options to 25 (Discord's limit per select menu)
+        if len(options) > 25:
+            options = options[:25]
+
+        # Define the view with a select menu
+        class ContainerSelectView(discord.ui.View):
+            def __init__(self, options, client, action, ctx, timeout=60):
+                super().__init__(timeout=timeout)
+                self.container_name = None
+                self.client = client
+                self.action = action
+                self.ctx = ctx
+
+                self.select = discord.ui.Select(
+                    placeholder=f"Select a container to {action.capitalize()}",
+                    options=options,
+                    min_values=1,
+                    max_values=1,
+                )
+                self.select.callback = self.select_callback
+                self.add_item(self.select)
+
+            async def select_callback(self, interaction: discord.Interaction):
+                if interaction.user != self.ctx.author:
                     await interaction.response.send_message(
                         "❌ You are not authorized to perform this action.",
                         ephemeral=True,
                     )
                     return
-                selected_name = select.values[0]
-                container = self.client.containers.get(selected_name)
+                self.container_name = self.select.values[0]
+                await interaction.response.defer()
+                container = self.client.containers.get(self.container_name)
                 try:
-                    if action == "start":
+                    if self.action == "start":
                         container.start()
-                        await ctx.send(
+                        await interaction.followup.send(
                             f"▶️ Container `{container.name}` has been started.",
-                            delete_after=5,
+                            ephemeral=False,
                         )
-                    elif action == "stop":
+                    elif self.action == "stop":
                         container.stop()
-                        await ctx.send(
+                        await interaction.followup.send(
                             f"⏹️ Container `{container.name}` has been stopped.",
-                            delete_after=5,
+                            ephemeral=False,
                         )
-                    elif action == "restart":
+                    elif self.action == "restart":
                         container.restart()
-                        await ctx.send(
+                        await interaction.followup.send(
                             f"🔄 Container `{container.name}` has been restarted.",
-                            delete_after=5,
+                            ephemeral=False,
                         )
-                    elif action == "remove":
+                    elif self.action == "remove":
                         container.remove(force=True)
-                        await ctx.send(
+                        await interaction.followup.send(
                             f"🗑️ Container `{container.name}` has been removed.",
-                            delete_after=5,
+                            ephemeral=False,
                         )
                 except Exception as e:
-                    await ctx.send(f"⚠️ An error occurred: {e}", delete_after=5)
-                await message.delete()
+                    await interaction.followup.send(
+                        f"⚠️ An error occurred: {e}", ephemeral=False
+                    )
+                self.stop()  # Stop the view after the operation
 
-            select.callback = select_callback
+        view = ContainerSelectView(options, self.client, action, ctx)
+        embed = discord.Embed(
+            title=f"Select a container to {action.capitalize()}",
+            color=discord.Color.blue(),
+        )
+        message = await ctx.send(embed=embed, view=view)
 
-            # Wait for interaction
-            def check(interaction):
-                return (
-                    interaction.user == ctx.author
-                    and interaction.message.id == message.id
-                )
-
-            try:
-                await self.bot.wait_for("interaction", timeout=60.0, check=check)
-                # Break after processing
-                break
-            except asyncio.TimeoutError:
-                await message.delete()
-                await ctx.send(
-                    "⏰ You took too long to respond. Please try again.", delete_after=5
-                )
-                return
+        await view.wait()
+        if view.container_name is None:
+            await message.delete()
+            await ctx.send(
+                "⏰ You took too long to respond. Please try again.", delete_after=5
+            )
+        else:
+            await message.delete()
 
 
 async def setup(bot):
