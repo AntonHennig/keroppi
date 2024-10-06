@@ -7,4 +7,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
+      COMMAND_PREFIX: ${COMMAND_PREFIX}
+      TIMEZONE: ${TIMEZONE}
     restart: unless-stopped

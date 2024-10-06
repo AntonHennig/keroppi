@@ -3,9 +3,7 @@ from discord.ext import commands
 from discord import ui
 import asyncio
 import aiohttp
-import os
 import platform
-import time
 from decorators import delete_command_message, delete_bot_response
 
 

@@ -14,6 +14,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
+# Passing command prefix through .env
+COMMAND_PREFIX = os.getenv("COMMAND_PREFIX", "!")
+
 # Check if the token is provided in the .env file
 if not TOKEN:
     logging.error("DISCORD_TOKEN not found in environment variables.")
@@ -21,17 +24,14 @@ if not TOKEN:
 
 # Set up the required bot intents
 intents = discord.Intents.default()
-intents.message_content = True  # Enable access to message content
-
-# Define the command prefix for the bot
-COMMAND_PREFIX = "!"
+intents.message_content = True
 
 # Create bot instance
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, intents=intents)
 
 @bot.event
 async def on_ready():
-    logging.info(f"{bot.user} is now online and ready.")
+    logging.info(f"{bot.user} is now online and ready. Use commands with prefix {COMMAND_PREFIX}.")
 
 
 # List of cogs that should always be loaded and cannot be unloaded
@@ -100,7 +100,7 @@ async def main():
     except Exception as e:
         logging.critical(f"An unexpected error occurred: {e}")
     finally:
-        pass  # No action needed here
+        pass
 
 
 if __name__ == "__main__":

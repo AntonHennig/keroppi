@@ -5,6 +5,12 @@ import asyncio
 import datetime
 from typing import List
 from decorators import delete_command_message, delete_bot_response
+import os
+import pytz
+
+# Read the TIMEZONE from environment variable or default to 'Europe/Berlin'
+TIMEZONE = os.getenv("TIMEZONE", "Europe/Berlin")
+user_tz = pytz.timezone(TIMEZONE)
 
 
 class ScheduledMessage:
@@ -328,13 +334,12 @@ class Msg(
     @commands.command(name="schedule_msg", aliases=["schedule"])
     @commands.has_permissions(manage_channels=True)
     @delete_command_message(delay=0)
+    @delete_bot_response(delay=15)
     async def schedule_message(self, ctx):
         """Schedules a message to be sent to a channel at a specific time.
 
         **Usage:**
         `!schedule_message`
-
-        After invoking the command, you'll be guided through selecting the channel, date, time, and message content.
         """
         # Step 1: Select Channel
         channels = [
@@ -394,7 +399,7 @@ class Msg(
                 super().__init__(timeout=timeout)
                 self.selected_date = None
 
-                today = datetime.datetime.now(datetime.timezone.utc).date()
+                today = datetime.datetime.now(user_tz).date()
                 options = [
                     discord.SelectOption(
                         label=(today + datetime.timedelta(days=i)).strftime("%Y-%m-%d"),
@@ -414,7 +419,7 @@ class Msg(
 
         date_select_view = DateSelectView()
         date_select_message = await ctx.send(
-            "📅 Please select a date:", view=date_select_view
+            f"📅 Please select a date (Time Zone: {TIMEZONE}):", view=date_select_view
         )
         await date_select_view.wait()
 
@@ -441,7 +446,7 @@ class Msg(
                 ]
 
                 self.select = ui.Select(
-                    placeholder="Select an hour (UTC)...", options=options
+                    placeholder=f"Select an hour ({TIMEZONE})...", options=options
                 )
                 self.select.callback = self.select_callback
                 self.add_item(self.select)
@@ -453,7 +458,7 @@ class Msg(
 
         hour_select_view = HourSelectView()
         hour_select_message = await ctx.send(
-            "⏰ Please select an hour (UTC):", view=hour_select_view
+            f"⏰ Please select an hour ({TIMEZONE}):", view=hour_select_view
         )
         await hour_select_view.wait()
 
@@ -465,7 +470,7 @@ class Msg(
 
         selected_hour = hour_select_view.selected_hour
         await hour_select_message.edit(
-            content=f"Selected hour: {selected_hour:02d}:00 UTC", view=None
+            content=f"Selected hour: {selected_hour:02d}:00 {TIMEZONE}", view=None
         )
 
         # Step 4: Select Minute
@@ -506,7 +511,7 @@ class Msg(
 
         selected_minute = minute_select_view.selected_minute
         await minute_select_message.edit(
-            content=f"Selected time: {selected_hour:02d}:{selected_minute:02d} UTC",
+            content=f"Selected time: {selected_hour:02d}:{selected_minute:02d} {TIMEZONE}",
             view=None,
         )
 
@@ -534,14 +539,14 @@ class Msg(
 
             @ui.button(label="Confirm", style=discord.ButtonStyle.success)
             async def confirm(
-                self, button: ui.Button, interaction: discord.Interaction
+                self, interaction: discord.Interaction, button: ui.Button
             ):
                 self.value = True
                 self.stop()
                 await interaction.response.defer()
 
             @ui.button(label="Cancel", style=discord.ButtonStyle.secondary)
-            async def cancel(self, button: ui.Button, interaction: discord.Interaction):
+            async def cancel(self, interaction: discord.Interaction, button: ui.Button):
                 self.value = False
                 self.stop()
                 await interaction.response.defer()
@@ -552,7 +557,7 @@ class Msg(
             f"📋 **Please confirm the scheduled message:**\n"
             f"**Channel:** {target_channel.mention}\n"
             f"**Date:** {selected_date}\n"
-            f"**Time:** {scheduled_time_str} UTC\n"
+            f"**Time:** {scheduled_time_str} {TIMEZONE}\n"
             f"**Message:** {message_content}",
             view=confirm_view,
         )
@@ -572,12 +577,15 @@ class Msg(
         # Step 7: Schedule the Message
         try:
             schedule_datetime_str = f"{selected_date} {scheduled_time_str}"
+            # Parse the scheduled time in user's timezone
             schedule_time = datetime.datetime.strptime(
                 schedule_datetime_str, "%Y-%m-%d %H:%M"
             )
-            schedule_time = schedule_time.replace(tzinfo=datetime.timezone.utc)
-            current_time = datetime.datetime.now(datetime.timezone.utc)
-            delay = (schedule_time - current_time).total_seconds()
+            schedule_time = user_tz.localize(schedule_time)
+            # Convert to UTC for storage and calculation
+            schedule_time_utc = schedule_time.astimezone(pytz.utc)
+            current_time_utc = datetime.datetime.now(pytz.utc)
+            delay = (schedule_time_utc - current_time_utc).total_seconds()
 
             if delay <= 0:
                 await ctx.send(
@@ -589,7 +597,7 @@ class Msg(
             scheduled_message = ScheduledMessage(
                 author_id=ctx.author.id,
                 channel_id=target_channel.id,
-                schedule_time=schedule_time,
+                schedule_time=schedule_time_utc,
                 content=message_content,
             )
 
@@ -602,7 +610,7 @@ class Msg(
             self.scheduled_messages.append(scheduled_message)
 
             await ctx.send(
-                f"⏳ Message scheduled for {schedule_time.strftime('%Y-%m-%d %H:%M')} UTC with ID `{scheduled_message.id}`.",
+                f"⏳ Message scheduled for {schedule_time.strftime('%Y-%m-%d %H:%M %Z')} with ID `{scheduled_message.id}`.",
                 delete_after=10,
             )
 
@@ -612,8 +620,7 @@ class Msg(
     async def send_scheduled_message(self, scheduled_message: ScheduledMessage):
         """Sends the scheduled message at the appropriate time."""
         delay = (
-            scheduled_message.schedule_time
-            - datetime.datetime.now(datetime.timezone.utc)
+            scheduled_message.schedule_time - datetime.datetime.now(pytz.utc)
         ).total_seconds()
         if delay > 0:
             await asyncio.sleep(delay)
@@ -631,9 +638,6 @@ class Msg(
         else:
             print(f"Channel with ID {scheduled_message.channel_id} not found.")
 
-    # --------------------------------------
-    # Command: show_scheduled_msgs
-    # --------------------------------------
     @commands.command(name="show_scheduled_msgs", aliases=["list_scheduled_msgs"])
     @commands.has_permissions(manage_messages=True)
     @delete_command_message(delay=0)
@@ -653,7 +657,9 @@ class Msg(
         for msg in self.scheduled_messages:
             author = self.bot.get_user(msg.author_id)
             channel = self.bot.get_channel(msg.channel_id)
-            time_str = msg.schedule_time.strftime("%Y-%m-%d %H:%M UTC")
+            # Convert schedule_time from UTC to user's timezone
+            time_in_user_tz = msg.schedule_time.astimezone(user_tz)
+            time_str = time_in_user_tz.strftime(f"%Y-%m-%d %H:%M {TIMEZONE}")
             message_lines.append(
                 f"**ID:** `{msg.id}` | **Time:** {time_str} | **Channel:** {channel.mention if channel else 'Unknown'} | **Author:** {author.mention if author else 'Unknown'}"
             )
@@ -675,9 +681,6 @@ class Msg(
         for chunk in chunks:
             await ctx.send(chunk)
 
-    # --------------------------------------
-    # Command: cancel_scheduled_message
-    # --------------------------------------
     @commands.command(
         name="cancel_scheduled_message", aliases=["cancel_scheduled", "cancel_message"]
     )
@@ -691,8 +694,6 @@ class Msg(
 
         **Example:**
         `!cancel_scheduled_message 1`
-
-        Cancels the scheduled message with the given ID.
         """
         if message_id is None:
             await ctx.send(
@@ -737,8 +738,6 @@ class Msg(
 
         **Example:**
         `!purge_channel #general`
-
-        If no channel is specified, it purges the current channel.
         """
         target_channel = channel or ctx.channel
 
@@ -820,8 +819,6 @@ class Msg(
 
         **Example:**
         `!purge_channel #general`
-
-        If no channel is specified, it purges the current channel.
         """
         target_channel = channel or ctx.channel
 
