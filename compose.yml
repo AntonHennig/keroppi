@@ -2,11 +2,14 @@ services:
   discord_bot:
     image: slxyyz/keroppi:latest
     container_name: Discord-Bot
-    volumes:
-      - /Path/To/Your/config:/app/config  # Replace with the absolute path to your config directory
-      - /var/run/docker.sock:/var/run/docker.sock  # Allows bot to interact with Docker
+    
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}   # set in .env
       COMMAND_PREFIX: ${COMMAND_PREFIX} # set in .env
-      TIMEZONE: ${TIMEZONE}             # set in .env
+      TIMEZONE: ${TIMEZONE}   # set in .env
+    
+    volumes:
+      - /Path/To/Your/config:/app/config  # Replace with the absolute path to your config directory
+      - /var/run/docker.sock:/var/run/docker.sock  # Allows bot to interact with Docker
+
     restart: unless-stopped

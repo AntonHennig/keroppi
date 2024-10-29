@@ -19,7 +19,7 @@ Hey there!
 
 ---
 
-## 🛠️ Installation (I recommend Docker compose)
+## 🛠️ Installation (I recommend Docker Compose)
 
 ### 📋 Prerequisites
 
@@ -28,56 +28,56 @@ Hey there!
 
 ### 🖥️ Setup with Docker
 
-1. **create .env file**
-Create a  new file named `.env` in the root of your project directoryand add your Discord bot token as in the provided example files. 
+    /Path/To/Your/config:/app/config:
+    This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
 
-/Path/To/Your/config:/app/config:
-This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
+    /var/run/docker.sock:/var/run/docker.sock:
+    This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
 
-/var/run/docker.sock:/var/run/docker.sock:
-This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
+    Run the Bot  with Docker Compose:
 
-Run the Bot  with Docker Compose:
+    **create `.env` file** in the root of your project directory and add your Discord bot token as in the provided example files. 
 
-Create a compose.yml in you t project directory and add the following content
+    Create a compose.yml in your project directory and add the following content
 
 
-  services:
-    discord-bot:
-      image: slxyyz/keroppi:latest
-      container_name: Discord-Bot
-      environment:
-        - DISCORD_TOKEN=your-bot-token
-        - COMMAND_PREFIX=!
-        - TIMEZONE=Europe/Berlin
-      volumes:
-        - /Path/To/Your/config:/app/config
-        - /var/run/docker.sock:/var/run/docker.sock
-      restart: unless-stopped
+      `services:
+        discord-bot:
+          image: slxyyz/keroppi:latest
+          container_name: Discord-Bot
+          environment:
+            DISCORD_TOKEN: ${DISCORD_TOKEN}
+            COMMAND_PREFIX: ${COMMAND_PREFIX}
+            TIMEZONE: ${TIMEZONE}
+          volumes:
+            - /Path/To/Your/config:/app/config
+            - /var/run/docker.sock:/var/run/docker.sock
+          restart: unless-stopped`
 
-Then run with docker compose up -d
+    Then run with docker compose up -d
 
-Or use this run command:
-  docker run -d --name Discord-Bot \
-    -e DISCORD_TOKEN=your-bot-token \
-    -e COMMAND_PREFIX=! \
-    -e TIMEZONE=Europe/Berlin \
-    -v /Path/To/Your/config:/app/config \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    slxyyz/keroppi:latest
+    Or use this run command:
 
-    
-You can customize the bot's behavior by setting the following environment variables:
+      `docker run -d --name Discord-Bot \
+        -e DISCORD_TOKEN=your-bot-token \
+        -e COMMAND_PREFIX=! \
+        -e TIMEZONE=Europe/Berlin \
+        -v /Path/To/Your/config:/app/config \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        slxyyz/keroppi:latest`
 
-COMMAND_PREFIX
-Set your desired command prefix.
-Defaults to: !
 
-TIMEZONE
-Set your timezone for timestamped messages.
-Defaults to: Europe/Berlin
+    You can customize the bot's behavior by setting the following environment variables:
 
-Add these to your .env file or pass them as environment variables in your Docker setup.
+    COMMAND_PREFIX
+    Set your desired command prefix.
+    Defaults to: !
+
+    TIMEZONE
+    Set your timezone for timestamped messages.
+    Defaults to: Europe/Berlin
+
+    Add these to your .env file or pass them as environment variables in your Docker setup.
 
 📚 Usage
 Once the bot is up and running, only the core and help cog will be loaded. Feel free to use !help to see available commands and usage exmaples.
