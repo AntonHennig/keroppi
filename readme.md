@@ -41,30 +41,30 @@ Hey there!
   Create a compose.yml in your project directory and add the following content
 
 
-      services:
-        discord-bot:
-          image: slxyyz/keroppi:latest
-          container_name: Discord-Bot
-          environment:
-            DISCORD_TOKEN: ${DISCORD_TOKEN}
-            COMMAND_PREFIX: ${COMMAND_PREFIX}
-            TIMEZONE: ${TIMEZONE}
-          volumes:
-            - /Path/To/Your/config:/app/config
-            - /var/run/docker.sock:/var/run/docker.sock
-          restart: unless-stopped
+    services:
+      discord-bot:
+        image: slxyyz/keroppi:latest
+        container_name: Discord-Bot
+        environment:
+          DISCORD_TOKEN: ${DISCORD_TOKEN}
+          COMMAND_PREFIX: ${COMMAND_PREFIX}
+          TIMEZONE: ${TIMEZONE}
+        volumes:
+          - /Path/To/Your/config:/app/config
+          - /var/run/docker.sock:/var/run/docker.sock
+        restart: unless-stopped
 
   Then run with docker compose up -d
 
   Or use this run command:
 
-      docker run -d --name Discord-Bot \
-        -e DISCORD_TOKEN=your-bot-token \
-        -e COMMAND_PREFIX=! \
-        -e TIMEZONE=Europe/Berlin \
-        -v /Path/To/Your/config:/app/config \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        slxyyz/keroppi:latest
+    docker run -d --name Discord-Bot \
+      -e DISCORD_TOKEN=your-bot-token \
+      -e COMMAND_PREFIX=! \
+      -e TIMEZONE=Europe/Berlin \
+      -v /Path/To/Your/config:/app/config \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      slxyyz/keroppi:latest
 
 
   You can customize the bot's behavior by setting the following environment variables:
