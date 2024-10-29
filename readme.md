@@ -28,17 +28,17 @@ Hey there!
 
 ### 🖥️ Setup with Docker
 
-    /Path/To/Your/config:/app/config:
-    This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
+  /Path/To/Your/config:/app/config:
+  This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
 
-    /var/run/docker.sock:/var/run/docker.sock:
-    This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
+  /var/run/docker.sock:/var/run/docker.sock:
+  This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
 
-    Run the Bot  with Docker Compose:
+  Run the Bot  with Docker Compose:
 
-    **create `.env` file** in the root of your project directory and add your Discord bot token as in the provided example files. 
+  **create `.env` file** in the root of your project directory and add your Discord bot token as in the provided example files. 
 
-    Create a compose.yml in your project directory and add the following content
+  Create a compose.yml in your project directory and add the following content
 
 
       `services:
@@ -54,9 +54,9 @@ Hey there!
             - /var/run/docker.sock:/var/run/docker.sock
           restart: unless-stopped`
 
-    Then run with docker compose up -d
+  Then run with docker compose up -d
 
-    Or use this run command:
+  Or use this run command:
 
       `docker run -d --name Discord-Bot \
         -e DISCORD_TOKEN=your-bot-token \
@@ -67,17 +67,17 @@ Hey there!
         slxyyz/keroppi:latest`
 
 
-    You can customize the bot's behavior by setting the following environment variables:
+  You can customize the bot's behavior by setting the following environment variables:
 
-    COMMAND_PREFIX
-    Set your desired command prefix.
-    Defaults to: !
+  COMMAND_PREFIX
+  Set your desired command prefix.
+  Defaults to: !
 
-    TIMEZONE
-    Set your timezone for timestamped messages.
-    Defaults to: Europe/Berlin
+  TIMEZONE
+  Set your timezone for timestamped messages.
+  Defaults to: Europe/Berlin
 
-    Add these to your .env file or pass them as environment variables in your Docker setup.
+  Add these to your .env file or pass them as environment variables in your Docker setup.
 
 📚 Usage
 Once the bot is up and running, only the core and help cog will be loaded. Feel free to use !help to see available commands and usage exmaples.
