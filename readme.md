@@ -1,4 +1,4 @@
-# 🎉 Personal Discord Bot 🎉
+# 🎉 Discrd Bot (for private use only) 🎉
 
 ## 🚀 Overview
 
@@ -8,7 +8,7 @@ Hey there!
 
 ---
 
-## 🌟 Features
+## 🌟 Features include
 
 - **🔄 Auto-delete:** Automatically delete messages after a specified duration to keep your channels clean.
 - **📦 Container Management:** Easily manage Docker containers directly from Discord commands.
@@ -24,13 +24,14 @@ Hey there!
 ### 📋 Prerequisites
 
 - **Docker:** Ensure you have Docker installed on your system. [Get Docker](https://docs.docker.com/get-docker/)
-- **Discord Account:** A Discord account and a server where you have permissions to add bots.
+- **Discord Account:** A Discord account and Bot Token, also a server where you have permissions to add bots.
 
 ### 🖥️ Setup with Docker
 
   /Path/To/Your/config:/app/config:
   This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
 
+  **This is optional and can be romeved if not neeed or wanted. Only affcets the Container cog which u can just leave unloaded**
   /var/run/docker.sock:/var/run/docker.sock:
   This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
 
