@@ -31,7 +31,7 @@ Hey there!
   /Path/To/Your/config:/app/config:
   This is where the bot stores its configuration files. Replace /Path/To/Your/config with the absolute path to a directory on your host where the bot can persist data.
 
-  **This is optional and can be romeved if not neeed or wanted. Only affcets the Container cog which u can just leave unloaded**
+  **This is optional and can be removed if not neeed or wanted. Only affects the Container cog which u can just leave unloaded**
   /var/run/docker.sock:/var/run/docker.sock:
   This allows the bot to interact with Docker on the host system, which is necessary for Docker-related commands within the bot.
 
@@ -88,9 +88,6 @@ Displays the help menu with all available commands and their descriptions.
 
 🎨 Customization
 Feel free to dive into the code and customize the bot to better fit your needs! Whether it's adding new features, tweaking existing ones, or just playing around, I hope you have as much fun with it as I did creating it.
-
-🤝 Contributing
-This project is for personal use, but if you have suggestions or improvements, feel free to open an issue or submit a pull request!
 
 📬 Contact
 If you have any questions or just want to say hi, feel free to reach out!
